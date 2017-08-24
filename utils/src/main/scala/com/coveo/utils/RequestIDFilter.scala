@@ -25,4 +25,3 @@ class RequestIDFilter @Inject()(implicit val mat: Materializer, ec: ExecutionCon
 
   }
 }
-
