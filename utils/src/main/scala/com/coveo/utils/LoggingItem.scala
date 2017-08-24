@@ -13,5 +13,13 @@ class LoggingItem(elements: ListMap[String, Any]) {
 
 object LoggingItem{
   def apply(requestID: Option[String], method: String, uri: String, queryString: String, statusCode: Int, responseTime: Long): LoggingItem =
-    new LoggingItem(ListMap("RequestID" -> requestID, "Method" -> method, "uri" -> uri, "queryString" -> queryString, "status code" -> statusCode, "ResponseTime" -> responseTime))
+    new LoggingItem(
+      ListMap("RequestID" -> requestID,
+        "Method" -> method,
+        "uri" -> uri,
+        "queryString" -> queryString,
+        "status code" -> statusCode,
+        "ResponseTime" -> responseTime)
+    )
 }
+
