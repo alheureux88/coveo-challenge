@@ -14,7 +14,7 @@ import sbtrelease._
 // we hide the existing definition for setReleaseVersion to replace it with our own
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=> _,_}
 
-def setVersionOnly(selectVersion: Versions => String): ReleaseStep =  { st: State =>
+def setVersionOnly(selectVersion: Versions => String): ReleaseStep = { st: State =>
   val vs = st.get(ReleaseKeys.versions).getOrElse(sys.error("No versions are set! Was this release part executed before inquireVersions?"))
   val selected = selectVersion(vs)
 
@@ -23,8 +23,8 @@ def setVersionOnly(selectVersion: Versions => String): ReleaseStep =  { st: Stat
   val versionStr = (if (useGlobal) globalVersionString else versionString) format selected
 
   reapply(Seq(
-    if (useGlobal) version in ThisBuild := selected
-    else version := selected
+    if (useGlobal) {version in ThisBuild := selected}
+    else {version := selected}
   ), st)
 }
 
@@ -42,9 +42,9 @@ releaseProcess := Seq(
   setReleaseVersion,
   runTest,
   tagRelease,
-  // publishArtifacts,
-  ReleaseStep(releaseStepTask(publishLocal in Docker))
-  //pushChanges
+  publishArtifacts,
+  ReleaseStep(releaseStepTask(publishLocal in Docker)),
+  pushChanges
 )
 
 dockerCommands := Seq(
@@ -54,5 +54,10 @@ dockerCommands := Seq(
   ExecCmd("RUN", "chmod", "-R", "+x", "."),
   ExecCmd("RUN", "chown", "-R", "daemon:daemon", "."),
   Cmd("USER", "daemon"),
+  Cmd("EXPOSE", "9000"),
   Cmd("ENTRYPOINT", "bin/web")
 )
+
+dockerUpdateLatest := true
+dockerUsername := Some("kushanagi")
+packageName in Docker := "coveo"
