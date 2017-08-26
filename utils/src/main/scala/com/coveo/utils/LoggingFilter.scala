@@ -32,16 +32,15 @@ class LoggingFilter @Inject()(implicit val mat: Materializer, ec: ExecutionConte
   def apply(nextFilter: RequestHeader => Future[Result])
            (requestHeader: RequestHeader): Future[Result] = {
 
-    val timerCtx = metricRegistry.timer(s"${requestHeader.method}-${requestHeader.uri}").time
+    val fullUri = s"${requestHeader.method}-${requestHeader.path}"
+    val timerCtx = metricRegistry.timer(fullUri).time
     nextFilter(requestHeader).map { result =>
       val requestTime = TimeUnit.NANOSECONDS.toMillis(timerCtx.stop())
-      val fullUri = s"${requestHeader.method}-${requestHeader.uri}"
-
       markStatusCode(fullUri, result.header.status)
 
       Logger.info(
         LoggingItem(RequestID.fromRequestHeader(requestHeader),
-          requestHeader.method, requestHeader.uri,
+          requestHeader.method, requestHeader.path,
           requestHeader.rawQueryString,
           result.header.status,
           requestTime)

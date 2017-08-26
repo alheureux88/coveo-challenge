@@ -6,7 +6,7 @@ object Common {
   val scalaV: String = "2.12.2"
   val releaseVersion = "0.0.1-SNAPSHOT"
 
-  name := """coveo-challenge"""
+  name := """coveo"""
   version := "1.0-SNAPSHOT"
 
   val commonSettings: Seq[Setting[_]] = Seq(
