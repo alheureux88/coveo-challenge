@@ -19,6 +19,7 @@ object Common {
   val playDeps = Seq(
     guice,
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test,
-    "nl.grons" %% "metrics-scala" % "3.5.9_a2.4"
+    "nl.grons" %% "metrics-scala" % "3.5.9_a2.4",
+    "io.dropwizard.metrics" % "metrics-jvm" % "3.2.2"
   )
 }
