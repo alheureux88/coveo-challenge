@@ -1,33 +1,52 @@
 package com.coveo.utils
 
+import java.lang.management.ManagementFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 import akka.stream.Materializer
-import com.codahale.metrics.{JmxReporter, Slf4jReporter}
+import com.codahale.metrics.{JmxReporter, MetricFilter, Slf4jReporter}
 import nl.grons.metrics.scala.DefaultInstrumented
 import play.api.Logger
 import play.api.mvc.{Filter, RequestHeader, Result}
 import LoggerUtils._
+import com.codahale.metrics.jvm._
+import play.api.inject.ApplicationLifecycle
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class LoggingFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext) extends Filter with DefaultInstrumented {
+class LoggingFilter @Inject()(lifecycle: ApplicationLifecycle)(implicit val mat: Materializer, ec: ExecutionContext) extends Filter with DefaultInstrumented {
 
-  Slf4jReporter
+  lifecycle.addStopHook { () =>
+    //Some cleanup needed otherwise it won't let app refresh in dev
+    Future.successful{
+      sl4jReporter.stop()
+      jmxReporter.stop()
+      metricRegistry.removeMatching(MetricFilter.ALL)
+    }
+  }
+  metricRegistry.registerAll(new MemoryUsageGaugeSet())
+  metricRegistry.registerAll(new GarbageCollectorMetricSet())
+  metricRegistry.registerAll(new ThreadStatesGaugeSet())
+  metricRegistry.register("File-Descriptor", new FileDescriptorRatioGauge())
+  metricRegistry.registerAll(new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer))
+
+  //Normally the ouput should not be log file but a metric application
+  private val sl4jReporter = Slf4jReporter
     .forRegistry(metricRegistry)
     .convertDurationsTo(TimeUnit.MILLISECONDS)
     .convertRatesTo(TimeUnit.SECONDS)
     .outputTo(Logger.logger)
     .build()
-    .start(1, TimeUnit.MINUTES)
 
-  JmxReporter
+  sl4jReporter.start(1, TimeUnit.MINUTES)
+
+  private val jmxReporter = JmxReporter
     .forRegistry(metricRegistry)
     .convertDurationsTo(TimeUnit.MILLISECONDS)
     .convertRatesTo(TimeUnit.SECONDS)
     .build()
-    .start()
+  jmxReporter.start()
 
   def apply(nextFilter: RequestHeader => Future[Result])
            (requestHeader: RequestHeader): Future[Result] = {

@@ -19,7 +19,8 @@ lazy val web = project
   .settings(Common.commonSettings: _*)
   .settings(libraryDependencies ++= Seq(
     "io.swagger" %% "swagger-play2" % "1.6.0",
-    "me.xdrop" % "fuzzywuzzy" % "1.1.8"
+    "me.xdrop" % "fuzzywuzzy" % "1.1.8",
+    ws
   ))
   .enablePlugins(GitVersioning, LauncherJarPlugin, JavaAppPackaging, PlayScala)
   .dependsOn(utils)
