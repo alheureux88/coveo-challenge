@@ -16,12 +16,18 @@ lazy val root = (project in file("."))
   )
 
 lazy val web = project
+  .configs(IntegrationTest)
   .settings(Common.commonSettings: _*)
+  .settings( Defaults.itSettings : _*)
   .settings(libraryDependencies ++= Seq(
     "io.swagger" %% "swagger-play2" % "1.6.0",
     "me.xdrop" % "fuzzywuzzy" % "1.1.8",
+    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % "it,test",
+    "org.scalacheck" %% "scalacheck" % "1.13.4" % "test",
     ws
-  ))
+  ),
+    sourceDirectory in IntegrationTest := baseDirectory.value / "it"
+  )
   .enablePlugins(GitVersioning, LauncherJarPlugin, JavaAppPackaging, PlayScala)
   .dependsOn(utils)
 

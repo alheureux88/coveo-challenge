@@ -58,6 +58,14 @@ dockerCommands := Seq(
   Cmd("ENTRYPOINT", "bin/web")
 )
 
+javaOptions in Universal ++= Seq(
+  "-Dpidfile.path=/dev/null"
+)
+
+javaOptions in Docker ++= Seq(
+  "-Dpidfile.path=/dev/null"
+)
+
 dockerUpdateLatest := true
 dockerUsername := Some("kushanagi")
 packageName in Docker := "coveo"

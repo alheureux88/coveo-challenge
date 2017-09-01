@@ -13,8 +13,8 @@ provider "aws" {
 module "ecs_cluster" {
   source = "./ecs-cluster"
 
-  name = "ecs-example"
-  size = 1
+  name = "coveo-challenge"
+  size = 2
   instance_type = "t2.micro"
   key_pair_name = "${var.key_pair_name}"
 
@@ -29,7 +29,7 @@ module "ecs_cluster" {
   # and sinatra-backend. To keep the example simple to test, we allow these requests from any IP, but in real-world
   # use cases, you should lock this down to just the IP addresses of the ELB and other trusted parties.
   allow_inbound_ports_and_cidr_blocks = "${map(
-    var.coveo_challenge_port, "0.0.0.0/0",
+    var.coveo_challenge_port, "0.0.0.0/0"
   )}"
 }
 
@@ -54,9 +54,10 @@ module "coveo_challenge" {
   elb_name = "${module.coveo_challenge_elb.elb_name}"
 
   # Provide env vars for the docker
-  num_env_vars = 1
+  num_env_vars = 2
   env_vars = "${map(
-    "ENV", "production"
+    "ENV", "production",
+    "java.io.tmpdir", "/tmp/"
   )}"
 }
 
