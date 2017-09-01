@@ -29,6 +29,13 @@ class CityFileParser @Inject()(ws: WSClient, config: Configuration)(implicit mat
   private val adminCode = config.get[String]("cityfile.adminCode")
 
   private val baseUrl: String = config.get[String]("cityfile.baseUrl")
+  //On docker image, looks like java.io.tmpdir is not set
+  private val tempFolder: String = Option(System.getProperty("java.io.tmpdir"))
+    .filter(folder => folder.nonEmpty && folder != "/")
+    .getOrElse(config.get[String]("cityfile.tempFolder")) + "/"
+
+
+  Logger.info(s"Temp directory is set to $tempFolder")
 
   private val adminCodeLineMapping: Array[String] => (String, String) = array => array(0) -> array(1)
 
@@ -66,7 +73,7 @@ class CityFileParser @Inject()(ws: WSClient, config: Configuration)(implicit mat
   }
 
   private def download(filename: String, extension: String): Future[File] = {
-    val file = new File(System.getProperty("java.io.tmpdir") + filename + extension)
+    val file = new File(tempFolder + filename + extension)
     if (!file.exists()) {
       Logger.info(s"File $filename not found in temp directory, downloading.")
       val futureResponse: Future[WSResponse] = ws.url(baseUrl + filename + extension)

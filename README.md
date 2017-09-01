@@ -13,7 +13,7 @@
 - `it:test` will execute the integration tests.
 - `docker:publishLocal` will generate the runscripts and docker images.
 - `docker:publish` will generate the runscripts and docker images and push it.
-- `makeBashScript` or `makeBatScript` will generate the runscripts.
+- `makeBashScripts` or `makeBatScripts` will generate the runscripts.
 
 ## Technology used
 |Technology|Reason it was used|
