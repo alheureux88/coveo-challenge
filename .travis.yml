@@ -9,8 +9,8 @@ scala:
 script:
   - sbt scalastyle
   - sbt compile
-  - sbt universal:packageBin
-  - sbt docker:publishLocal
+  - sbt test
+  - sbt it:test
 
 cache:
   directories:
